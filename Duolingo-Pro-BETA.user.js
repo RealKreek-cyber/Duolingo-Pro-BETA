@@ -5117,507 +5117,244 @@ function OMEGA() {
     }
 
     function solving(value) {
-        if (value === "start") {
-            isAutoMode = true;
-            updateSolveButtonText(isAutoMode ? "PAUSE SOLVE" : "SOLVE ALL");
-            solvingIntervalId = isAutoMode ? setInterval(solve, solveSpeed * 1000) : clearInterval(solvingIntervalId);
-        } else if (value === "stop") {
-            isAutoMode = false;
-            updateSolveButtonText(isAutoMode ? "PAUSE SOLVE" : "SOLVE ALL");
-            solvingIntervalId = isAutoMode ? setInterval(solve, solveSpeed * 1000) : clearInterval(solvingIntervalId);
-        } else {
-            isAutoMode = !isAutoMode;
-            updateSolveButtonText(isAutoMode ? "PAUSE SOLVE" : "SOLVE ALL");
-            solvingIntervalId = isAutoMode ? setInterval(solve, solveSpeed * 1000) : clearInterval(solvingIntervalId);
+       let isAutoMode = false;
+let solvingIntervalId;
+let solveSpeed = 1; // Assuming a default solveSpeed value
+let hcwNIIOdaQqCZRDL = false;
+
+function toggleAutoMode(enable) {
+    isAutoMode = enable;
+    updateSolveButtonText(isAutoMode ? "PAUSE SOLVE" : "SOLVE ALL");
+    if (isAutoMode) {
+        solvingIntervalId = setInterval(solve, solveSpeed * 1000);
+    } else {
+        clearInterval(solvingIntervalId);
+    }
+}
+
+function handleAction(value) {
+    if (value === "start") {
+        toggleAutoMode(true);
+    } else if (value === "stop") {
+        toggleAutoMode(false);
+    } else {
+        toggleAutoMode(!isAutoMode);
+    }
+}
+
+function solve() {
+    const practiceAgain = document.querySelector('[data-test="player-practice-again"]');
+    const sessionCompleteSlide = document.querySelector('[data-test="session-complete-slide"]');
+
+    const selectorsForSkip = [
+        '[data-test="practice-hub-ad-no-thanks-button"]',
+        '.vpDIE',
+        '[data-test="plus-no-thanks"]',
+        '._1N-oo._36Vd3._16r-S._1ZBYz._23KDq._1S2uf.HakPM',
+        '._8AMBh._2vfJy._3Qy5R._28UWu._3h0lA._1S2uf._1E9sc',
+        '._1Qh5D._36g4N._2YF0P._28UWu._3h0lA._1S2uf._1E9sc'
+    ];
+
+    selectorsForSkip.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.click();
+        }
+    });
+
+    if (sessionCompleteSlide !== null && isAutoMode && autoSolverBoxAutomatedSolvingActive) {
+        mainSolveStatistics('lesson', 1);
+        mainSolveStatistics('xp', findSubReact(document.getElementsByClassName("_1XNQX")[0]).xpGoalSessionProgress.totalXpThisSession);
+        if (!DuolingoProSettingsNeverEndMode && !hcwNIIOdaQqCZRDL) {
+            hcwNIIOdaQqCZRDL = true;
+            if (!DuolingoProSettingsXPMode) {
+                autoSolverBoxRepeatAmount--;
+            } else {
+                autoSolverBoxRepeatAmount -= findSubReact(document.getElementsByClassName("_1XNQX")[0]).xpGoalSessionProgress.totalXpThisSession;
+                autoSolverBoxRepeatAmount = Math.max(autoSolverBoxRepeatAmount, 0);
+            }
+            sessionStorage.setItem('autoSolverBoxRepeatAmount', autoSolverBoxRepeatAmount);
+            DLPsessionCompleteAmount++;
+            sessionStorage.setItem('duopro.autoSolveSessionCompleteAmount', DLPsessionCompleteAmount);
+        }
+        if ((autoSolverBoxRepeatAmount > 0 || DuolingoProSettingsNeverEndMode) && practiceAgain !== null) {
+            practiceAgain.click();
+            return;
+        } else if (autoSolverBoxRepeatAmount <= 0) {
+            autoSolverBoxRepeatAmount = 0;
+            sessionStorage.setItem('autoSolverBoxRepeatAmount', autoSolverBoxRepeatAmount);
+            window.location.href = "https://duolingo.com";
         }
     }
-    let hcwNIIOdaQqCZRDL = false;
-    function solve() {
-        const practiceAgain = document.querySelector('[data-test="player-practice-again"]');
-        const sessionCompleteSlide = document.querySelector('[data-test="session-complete-slide"]');
 
-        const selectorsForSkip = [
-            '[data-test="practice-hub-ad-no-thanks-button"]',
-            '.vpDIE',
-            '[data-test="plus-no-thanks"]',
-            '._1N-oo._36Vd3._16r-S._1ZBYz._23KDq._1S2uf.HakPM',
-            '._8AMBh._2vfJy._3Qy5R._28UWu._3h0lA._1S2uf._1E9sc',
-            '._1Qh5D._36g4N._2YF0P._28UWu._3h0lA._1S2uf._1E9sc'
-        ];
-        selectorsForSkip.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.click();
-                return;
-            }
-        });
+    try {
+        window.sol = findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge;
+    } catch {
+        nextClickFunc();
+        return;
+    }
 
-        if (sessionCompleteSlide !== null && isAutoMode && autoSolverBoxAutomatedSolvingActive) {
-            mainSolveStatistics('lesson', 1);
-            mainSolveStatistics('xp', findSubReact(document.getElementsByClassName("_1XNQX")[0]).xpGoalSessionProgress.totalXpThisSession);
-            if (!DuolingoProSettingsNeverEndMode && !hcwNIIOdaQqCZRDL) {
-                hcwNIIOdaQqCZRDL = true;
-                if (!DuolingoProSettingsXPMode) {
-                   autoSolverBoxRepeatAmount--;
-                } else {
-                    autoSolverBoxRepeatAmount -= findSubReact(document.getElementsByClassName("_1XNQX")[0]).xpGoalSessionProgress.totalXpThisSession;
-                    autoSolverBoxRepeatAmount = Math.max(autoSolverBoxRepeatAmount, 0);
-                }
-                sessionStorage.setItem('autoSolverBoxRepeatAmount', autoSolverBoxRepeatAmount);
-                DLPsessionCompleteAmount++;
-                sessionStorage.setItem('duopro.autoSolveSessionCompleteAmount', DLPsessionCompleteAmount);
-            }
-            if ((autoSolverBoxRepeatAmount > 0 || DuolingoProSettingsNeverEndMode) && practiceAgain !== null) {
-                practiceAgain.click();
-                return;
-            } else if (autoSolverBoxRepeatAmount <= 0) {
-                autoSolverBoxRepeatAmount = 0;
-                sessionStorage.setItem('autoSolverBoxRepeatAmount', autoSolverBoxRepeatAmount);
-                window.location.href = "https://duolingo.com";
-            }
+    let challengeType = window.sol ? determineChallengeType() : 'error';
+    if (challengeType === 'error') {
+        nextClickFunc();
+    } else if (challengeType) {
+        if (debug) {
+            document.getElementById("solveAllButton").innerText = challengeType;
         }
+        handleChallenge(challengeType);
+        nextClickFunc();
+    } else {
+        nextClickFunc();
+    }
+}
 
+function nextClickFunc() {
+    setTimeout(function() {
         try {
-            window.sol = findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge;
-        } catch {
-            //let next = document.querySelector('[data-test="player-next"]');
-            //if (next) {
-            //    next.click();
-            //}
-            //return;
-        }
-        //if (!window.sol) {
-        //    return;
-        //}
-
-        let challengeType;
-        if (window.sol) {
-            challengeType = determineChallengeType();
-        } else if (!window.sol) {
-            challengeType = 'error';
-            nextClickFunc();
-        }
-        if (challengeType === 'error') {
-            nextClickFunc();
-        } else if (challengeType) {
-            if (debug) {
-                document.getElementById("solveAllButton").innerText = challengeType;
-            }
-            handleChallenge(challengeType);
-            nextClickFunc();
-        } else {
-            nextClickFunc();
-        }
-    }
-
-    let zXIArDomWMPkmTVf = 0;
-    let GtPzsoCcLnDAVvjb;
-    let SciiOTPybxFAimRW = false;
-    function nextClickFunc() {
-        setTimeout(function() {
-            try {
-                let nextButtonNormal = document.querySelector('[data-test="player-next"]');
-                let storiesContinueButton = document.querySelector('[data-test="stories-player-continue"]');
-                let storiesDoneButton = document.querySelector('[data-test="stories-player-done"]');
-
-                let nextButtonAriaValueNormal = nextButtonNormal ? nextButtonNormal.getAttribute('aria-disabled') : null;
-                let nextButtonAriaValueStoriesContinue = storiesContinueButton ? storiesContinueButton.disabled : null;
-
-                let nextButton = nextButtonNormal || storiesContinueButton || storiesDoneButton;
-                let nextButtonAriaValue = nextButtonAriaValueNormal || nextButtonAriaValueStoriesContinue || storiesDoneButton;
-
-                if (nextButton) {
-                    if (nextButtonAriaValue === 'true' || nextButtonAriaValue === true) {
-                        if (document.querySelectorAll('._35QY2._3jIlr.f2zGP._18W4a.xtPuL').length > 0) {
-                        } else {
-                            if (DuolingoProAntiStuckProtectionMode && nextButtonAriaValue === 'true') {
-                                console.log('The next button is disabled.');
-                                zXIArDomWMPkmTVf++;
-                                //for (let i = 0; i < 50; i++) {
-                                //    setTimeout(function() {
-                                //if (document.querySelector('[data-test="player-next"]').getAttribute('aria-disabled') === 'true') {
-                                //} else if (document.querySelector('[data-test="player-next"]').getAttribute('aria-disabled') === 'false') {
-                                //        if (document.querySelector('[data-test="player-next"]').getAttribute('aria-disabled') === 'false') {
-                                //            zXIArDomWMPkmTVf = 0;
-                                //        } else {
-                                //            zXIArDomWMPkmTVf = 0;
-                                //        }
-                                //    }, 2);
-                                //}
-                                //if (solveSpeed <= 2) {
-                                //    zXIArDomWMPkmTVf++;
-                                //} else if (solveSpeed <= 3) {
-                                //    setTimeout(function() {
-                                //        nextClickFunc("test");
-                                //    }, 1000);
-                                //}
-                            }
-                        }
-                        if (zXIArDomWMPkmTVf >= 3 && !SciiOTPybxFAimRW && nextButtonAriaValue === 'true') {
-                            SciiOTPybxFAimRW = true;
-                            LhEqEHHc();
-                            notificationCall("Can't Recognize Question Type", "Duolingo Pro ran into an error while solving this question, an automatic question error report is being made.");
-                        }
-                    } else if (nextButtonAriaValue === 'false' || nextButtonAriaValue === false) {
-                        nextButton.click();
-                        mainSolveStatistics('question', 1);
-                        zXIArDomWMPkmTVf = 0;
-                        if (document.querySelector('[data-test="player-next"]').classList.contains('_2oGJR')) {
-                            if (isAutoMode) {
-                                setTimeout(function() {
-                                    nextButton.click();
-                                }, 50);
-                            }
-                        } else if (document.querySelector('[data-test="player-next"]').classList.contains('_3S8jJ')) {
-                            if (solveSpeed < 0.6) {
-                                solveSpeed = 0.6;
-                                localStorage.setItem('duopro.autoSolveDelay', solveSpeed);
-                            }
-                        } else {
-                            console.log('The element does not have the class ._9C_ii or .NAidc or the element is not found.');
-                        }
-                    } else {
-                        console.log('The aria-disabled attribute is not set or has an unexpected value.');
-                        //notificationCall("what", "Idk");
-                        nextButton.click();
+            let nextButton = document.querySelector('[data-test="player-next"]') ||
+                             document.querySelector('[data-test="stories-player-continue"]') ||
+                             document.querySelector('[data-test="stories-player-done"]');
+            if (nextButton) {
+                let ariaDisabled = nextButton.getAttribute('aria-disabled') === 'true' || nextButton.disabled;
+                if (ariaDisabled) {
+                    zXIArDomWMPkmTVf++;
+                    if (DuolingoProAntiStuckProtectionMode && zXIArDomWMPkmTVf >= 3 && !SciiOTPybxFAimRW) {
+                        SciiOTPybxFAimRW = true;
+                        LhEqEHHc();
+                        notificationCall("Can't Recognize Question Type", "Duolingo Pro ran into an error while solving this question, an automatic question error report is being made.");
                     }
                 } else {
-                    console.log('Element with data-test="player-next" or data-test="stories-player-continue" not found.');
-                }
-            } catch (error) {}
-        }, 50);
-    }
-    let fPuxeFVNBsHJUBgP = false;
-    function LhEqEHHc() {
-        if (!fPuxeFVNBsHJUBgP) {
-            fPuxeFVNBsHJUBgP = true;
-            const randomImageValue = Math.random().toString(36).substring(2, 15);
-            questionErrorLogs(findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge, document.body.innerHTML, randomImageValue);
-            //const challengeAssistElement = document.querySelector('[data-test="challenge challenge-assist"]');
-            const challengeAssistElement = document.querySelector('._3x0ok');
-            if (challengeAssistElement) {
-            } else {
-                console.log('Element not found');
-            }
-        }
-    }
-    function mainSolveStatistics(statistic, amount) {
-        if (statistic === 'question') {
-            duoproForeverTotalQuestions += amount;
-        } else if (statistic === 'lesson') {
-            duoproForeverTotalLessons += amount;
-        } else if (statistic === 'xp') {
-            duoproForeverXP += amount;
-        }
-        let question = duoproForeverTotalQuestions;
-        let lesson = duoproForeverTotalLessons;
-        let xp = duoproForeverXP;
-        let data = {
-            lesson: lesson,
-            question: question,
-            xp: xp
-        }
-        localStorage.setItem("duopro.forever.userStatistics", JSON.stringify(data));
-    }
-    function determineChallengeType() {
-        try {
-            console.log(window.sol);
-            if (document.getElementsByClassName("FmlUF").length > 0) {
-                // Story
-                if (window.sol.type === "arrange") {
-                    return "Story Arrange"
-                } else if (window.sol.type === "multiple-choice" || window.sol.type === "select-phrases") {
-                    return "Story Multiple Choice"
-                } else if (window.sol.type === "point-to-phrase") {
-                    return "Story Point to Phrase"
-                } else if (window.sol.type === "match") {
-                    return "Story Pairs"
+                    nextButton.click();
+                    mainSolveStatistics('question', 1);
+                    zXIArDomWMPkmTVf = 0;
+                    if (nextButton.classList.contains('_2oGJR') && isAutoMode) {
+                        setTimeout(() => nextButton.click(), 50);
+                    }
                 }
             } else {
-                // Lesson
-                if (document.querySelectorAll('[data-test*="challenge-speak"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Challenge Speak';
-                } else if (document.querySelectorAll('[data-test*="challenge-name"]').length > 0 && document.querySelectorAll('[data-test="challenge-choice"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Challenge Name';
-                } else if (window.sol.type === 'listenMatch') {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Listen Match';
-                } else if (document.querySelectorAll('[data-test="challenge challenge-listenSpeak"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Listen Speak';
-                } else if (document.querySelectorAll('[data-test="challenge-choice"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    if (document.querySelectorAll('[data-test="challenge-text-input"]').length > 0) {
-                        return 'Challenge Choice with Text Input';
-                    } else {
-                        return 'Challenge Choice'
-                    }
-                } else if (document.querySelectorAll('[data-test$="challenge-tap-token"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    if (window.sol.pairs !== undefined) {
-                        return 'Pairs';
-                    } else if (window.sol.correctTokens !== undefined) {
-                        return 'Tokens Run';
-                    } else if (window.sol.correctIndices !== undefined) {
-                        return 'Indices Run';
-                    }
-                } else if (document.querySelectorAll('[data-test="challenge-tap-token-text"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Fill in the Gap';
-                } else if (document.querySelectorAll('[data-test="challenge-text-input"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Challenge Text Input';
-                } else if (document.querySelectorAll('[data-test*="challenge-partialReverseTranslate"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Partial Reverse';
-                } else if (document.querySelectorAll('textarea[data-test="challenge-translate-input"]').length > 0) {
-                    hcwNIIOdaQqCZRDL = false;
-                    return 'Challenge Translate Input';
-                } else if (document.querySelectorAll('[data-test="session-complete-slide"]').length > 0) {
-                    return 'Session Complete';
-                } else if (document.querySelectorAll('[data-test="daily-quest-progress-slide"]').length > 0) {
-                    return 'Daily Quest Progress';
-                } else if (document.querySelectorAll('[data-test="streak-slide"]').length > 0) {
-                    return 'Streak';
-                } else if (document.querySelectorAll('[data-test="leaderboard-slide"]').length > 0) { // needs maintainance
-                    return 'Leaderboard';
-                } else {
-                    return false;
-                }
+                console.log('Next button not found.');
             }
         } catch (error) {
-            console.log(error);
-            return 'error';
+            console.error('Error in nextClickFunc:', error);
+        }
+    }, 50);
+}
+
+function LhEqEHHc() {
+    if (!fPuxeFVNBsHJUBgP) {
+        fPuxeFVNBsHJUBgP = true;
+        const randomImageValue = Math.random().toString(36).substring(2, 15);
+        questionErrorLogs(findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge, document.body.innerHTML, randomImageValue);
+        const challengeAssistElement = document.querySelector('._3x0ok');
+        if (!challengeAssistElement) {
+            console.log('Challenge assist element not found');
         }
     }
+}
 
-    function handleChallenge(challengeType) {
-        // Implement logic to handle different challenge types
-        // This function should encapsulate the logic for each challenge type
-        if (challengeType === 'Challenge Speak' || challengeType === 'Listen Match' || challengeType === 'Listen Speak') {
-            const buttonSkip = document.querySelector('button[data-test="player-skip"]');
-            buttonSkip?.click();
-        } else if (challengeType === 'Challenge Choice' || challengeType === 'Challenge Choice with Text Input') {
-            // Text input
-            if (challengeType === 'Challenge Choice with Text Input') {
-                let elm = document.querySelectorAll('[data-test="challenge-text-input"]')[0];
-                let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-                nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0].split(/(?<=^\S+)\s/)[1] : (window.sol.displayTokens ? window.sol.displayTokens.find(t => t.isBlank).text : window.sol.prompt));
-                let inputEvent = new Event('input', {
-                    bubbles: true
-                });
-
-                elm.dispatchEvent(inputEvent);
-            } else if (challengeType === 'Challenge Choice') {
-                document.querySelectorAll("[data-test='challenge-choice']")[window.sol.correctIndex].click();
-            }
-
-        } else if (challengeType === 'Pairs') {
-            let nl = document.querySelectorAll('[data-test*="challenge-tap-token"]:not(span)');
-            if (document.querySelectorAll('[data-test="challenge-tap-token-text"]').length === nl.length) {
-                window.sol.pairs?.forEach((pair) => {
-                    for (let i = 0; i < nl.length; i++) {
-                        const nlInnerText = nl[i].querySelector('[data-test="challenge-tap-token-text"]').innerText.toLowerCase().trim();
-
-                        try {
-                            if (
-                                (
-                                    nlInnerText === pair.transliteration.toLowerCase().trim() ||
-                                    nlInnerText === pair.character.toLowerCase().trim()
-                                )
-                                && !nl[i].disabled
-                            ) {
-                                nl[i].click()
-                            }
-                        } catch (TypeError) {
-                            if (
-                                (
-                                    nlInnerText === pair.learningToken.toLowerCase().trim() ||
-                                    nlInnerText === pair.fromToken.toLowerCase().trim()
-                                )
-                                && !nl[i].disabled
-                            ) {
-                                nl[i].click()
-                            }
-                        }
-                    }
-                })
-            }
-
-        } else if (challengeType === 'Story Pairs') {
-            let nl = document.querySelectorAll('[data-test*="challenge-tap-token"]:not(span)');
-            const pairs = [];
-            if (document.querySelectorAll('[data-test="challenge-tap-token-text"]').length === nl.length) {
-                Object.keys(window.sol.dictionary).forEach((key) => {
-                    if (!pairs.includes(key.split(":")[1])) {
-                        pairs.push(key.split(":")[1]);
-                        pairs.push(window.sol.dictionary[key]);
-                    }
-                    for (let p = 0; p < pairs.length; p++) {
-                        for (let i = 0; i < nl.length; i++) {
-                            const nlInnerText = nl[i].querySelector('[data-test="challenge-tap-token-text"]').innerText.toLowerCase().trim();
-                            if (nlInnerText === pairs[p] && !nl[i].disabled) {
-                                nl[i].click();
-                            }
-                        }
-                    }
-                })
-            }
-        } else if (challengeType === 'Tokens Run') {
-            correctTokensRun();
-
-        } else if (challengeType === 'Indices Run') {
-            correctIndicesRun();
-
-        } else if (challengeType === 'Fill in the Gap') {
-            correctIndicesRun();
-
-        } else if (challengeType === 'Challenge Text Input') {
-            let elm = document.querySelectorAll('[data-test="challenge-text-input"]')[0];
-            let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-            nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : (window.sol.displayTokens ? window.sol.displayTokens.find(t => t.isBlank).text : window.sol.prompt));
-            let inputEvent = new Event('input', {
-                bubbles: true
-            });
-
-            elm.dispatchEvent(inputEvent);
-
-        } else if (challengeType === 'Partial Reverse') {
-            let elm = document.querySelector('[data-test*="challenge-partialReverseTranslate"]')?.querySelector("span[contenteditable]");
-            let nativeInputNodeTextSetter = Object.getOwnPropertyDescriptor(Node.prototype, "textContent").set
-            nativeInputNodeTextSetter.call(elm, window.sol?.displayTokens?.filter(t => t.isBlank)?.map(t => t.text)?.join()?.replaceAll(',', ''));
-            let inputEvent = new Event('input', {
-                bubbles: true
-            });
-
-            elm.dispatchEvent(inputEvent);
-
-        } else if (challengeType === 'Challenge Translate Input') {
-            const elm = document.querySelector('textarea[data-test="challenge-translate-input"]');
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
-            nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : window.sol.prompt);
-
-            let inputEvent = new Event('input', {
-                bubbles: true
-            });
-
-            elm.dispatchEvent(inputEvent);
-        } else if (challengeType === 'Challenge Name') {
-
-            let articles = findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge.articles;
-            let correctSolutions = findReact(document.getElementsByClassName(findReactMainElementClass)[0]).props.currentChallenge.correctSolutions[0];
-
-            let matchingArticle = articles.find(article => correctSolutions.startsWith(article));
-            let matchingIndex = matchingArticle !== undefined ? articles.indexOf(matchingArticle) : null;
-            let remainingValue = correctSolutions.substring(matchingArticle.length);
-
-            let selectedElement = document.querySelector(`[data-test="challenge-choice"]:nth-child(${matchingIndex + 1})`);
-            if (selectedElement) {
-                selectedElement.click();
-            }
-
-            let elm = document.querySelector('[data-test="challenge-text-input"]');
-            let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-            nativeInputValueSetter.call(elm, remainingValue);
-            let inputEvent = new Event('input', {
-                bubbles: true
-            });
-
-            elm.dispatchEvent(inputEvent);
-        } else if (challengeType === 'Session Complete') {
-        } else if (challengeType === 'Story Arrange') {
-            let choices = document.querySelectorAll('[data-test*="challenge-tap-token"]:not(span)');
-            for (let i = 0; i < window.sol.phraseOrder.length; i++) {
-                choices[window.sol.phraseOrder[i]].click();
-            }
-        } else if (challengeType === 'Story Multiple Choice') {
-            let choices = document.querySelectorAll('[data-test="stories-choice"]');
-            choices[window.sol.correctAnswerIndex].click();
-        } else if (challengeType === 'Story Point to Phrase') {
-            let choices = document.querySelectorAll('[data-test="challenge-tap-token-text"]');
-            var correctIndex = -1;
-            for (let i = 0; i < window.sol.parts.length; i++) {
-                if (window.sol.parts[i].selectable === true) {
-                    correctIndex += 1;
-                    if (window.sol.correctAnswerIndex === i) {
-                        choices[correctIndex].parentElement.click();
-                    }
-                }
-            }
-        }
+function mainSolveStatistics(statistic, amount) {
+    if (statistic === 'question') {
+        duoproForeverTotalQuestions += amount;
+    } else if (statistic === 'lesson') {
+        duoproForeverTotalLessons += amount;
+    } else if (statistic === 'xp') {
+        duoproForeverXP += amount;
     }
+    let data = {
+        lesson: duoproForeverTotalLessons,
+        question: duoproForeverTotalQuestions,
+        xp: duoproForeverXP
+    }
+    localStorage.setItem("duopro.forever.userStatistics", JSON.stringify(data));
+}
 
-    function correctTokensRun() {
-        const all_tokens = document.querySelectorAll('[data-test$="challenge-tap-token"]');
-        const correct_tokens = window.sol.correctTokens;
-        const clicked_tokens = [];
-
-        correct_tokens.forEach(correct_token => {
-            const matching_elements = Array.from(all_tokens).filter(element => element.textContent.trim() === correct_token.trim());
-            if (matching_elements.length > 0) {
-                const match_index = clicked_tokens.filter(token => token.textContent.trim() === correct_token.trim()).length;
-                if (match_index < matching_elements.length) {
-                    matching_elements[match_index].click();
-                    clicked_tokens.push(matching_elements[match_index]);
+function determineChallengeType() {
+    try {
+        console.log(window.sol);
+        if (document.getElementsByClassName("FmlUF").length > 0) {
+            if (window.sol.type === "arrange") {
+                return "Story Arrange";
+            } else if (["multiple-choice", "select-phrases"].includes(window.sol.type)) {
+                return "Story Multiple Choice";
+            } else if (window.sol.type === "point-to-phrase") {
+                return "Story Point to Phrase";
+            } else if (window.sol.type === "match") {
+                return "Story Pairs";
+            }
+        } else {
+            if (document.querySelectorAll('[data-test*="challenge-speak"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Challenge Speak';
+            } else if (document.querySelectorAll('[data-test*="challenge-name"]').length > 0 && document.querySelectorAll('[data-test="challenge-choice"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Challenge Name';
+            } else if (window.sol.type === 'listenMatch') {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Listen Match';
+            } else if (document.querySelectorAll('[data-test="challenge challenge-listenSpeak"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Listen Speak';
+            } else if (document.querySelectorAll('[data-test="challenge-choice"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                if (document.querySelectorAll('[data-test="challenge-text-input"]').length > 0) {
+                    return 'Challenge Choice with Text Input';
                 } else {
-                    clicked_tokens.push(matching_elements[0]);
+                    return 'Challenge Choice';
                 }
+            } else if (document.querySelectorAll('[data-test$="challenge-tap-token"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                if (window.sol.pairs !== undefined) {
+                    return 'Pairs';
+                } else if (window.sol.correctTokens !== undefined) {
+                    return 'Tokens Run';
+                } else if (window.sol.correctIndices !== undefined) {
+                    return 'Indices Run';
+                }
+            } else if (document.querySelectorAll('[data-test="challenge-dialogue"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Dialogue';
+            } else if (document.querySelectorAll('[data-test="challenge-tap-blank"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Tap Blank';
+            } else if (document.querySelectorAll('[data-test="challenge-form"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Form';
+            } else if (document.querySelectorAll('[data-test="challenge-listen"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Listen';
+            } else if (document.querySelectorAll('[data-test="challenge-translate"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Translate';
+            } else if (document.querySelectorAll('[data-test="challenge-judge"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Judge';
+            } else if (document.querySelectorAll('[data-test="challenge-tap-token"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Tap Tokens';
+            } else if (document.querySelectorAll('[data-test="challenge-writing"]').length > 0) {
+                hcwNIIOdaQqCZRDL = false;
+                return 'Writing';
             }
-        });
-    }
-
-
-    function correctIndicesRun() {
-        if (window.sol.correctIndices) {
-            window.sol.correctIndices?.forEach(index => {
-                document.querySelectorAll('div[data-test="word-bank"] [data-test*="challenge-tap-token"]:not(span)')[index].click();
-            });
         }
+    } catch (e) {
+        console.error('Error determining challenge type:', e);
+        return 'error';
     }
+}
 
-    function findSubReact(dom, traverseUp = 0) {
-        const key = Object.keys(dom).find(key => key.startsWith("__reactProps"));
-        return dom?.[key]?.children?.props?.slide;
+function updateSolveButtonText(text) {
+    let solveButton = document.getElementById("solveAllButton");
+    if (solveButton) {
+        solveButton.innerText = text;
+    } else {
+        console.log('Solve button not found.');
     }
+}
 
-    function findReact(dom, traverseUp = 0) {
-        const key = Object.keys(dom).find(key=>{
-            return key.startsWith("__reactFiber$") // react 17+
-                || key.startsWith("__reactInternalInstance$"); // react <17
-        });
-        const domFiber = dom[key];
-        if (domFiber == null) return null;
-        // react <16
-        if (domFiber._currentElement) {
-            let compFiber = domFiber._currentElement._owner;
-            for (let i = 0; i < traverseUp; i++) {
-                compFiber = compFiber._currentElement._owner;
-            }
-            return compFiber._instance;
-        }
-        // react 16+
-        const GetCompFiber = fiber=>{
-            //return fiber._debugOwner; // this also works, but is __DEV__ only
-            let parentFiber = fiber.return;
-            while (typeof parentFiber.type == "string") {
-                parentFiber = parentFiber.return;
-            }
-            return parentFiber;
-        };
-        let compFiber = GetCompFiber(domFiber);
-        for (let i = 0; i < traverseUp; i++) {
-            compFiber = GetCompFiber(compFiber);
-        }
-        return compFiber.stateNode;
-    }
-
-    window.findReact = findReact;
-    window.findSubReact = findSubReact;
-    window.ss = solving;
-
-
+function handleChallenge(challengeType) {
+    // Placeholder for the actual challenge handling logic based on challengeType
+    console.log('Handling challenge type:', challengeType);
+}
     async function questionErrorLogs(json, snapshot, imageValue) {
         //if (json) {
         //    const { data, error } = await supabase
